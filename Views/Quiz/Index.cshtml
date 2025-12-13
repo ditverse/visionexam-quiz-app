@@ -1,0 +1,53 @@
+@model List<QuizApp.Models.Quiz>
+@{
+    ViewData["Title"] = "Daftar Quiz";
+}
+
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Daftar Quiz</h1>
+    <p class="text-gray-600 mt-2">Pilih quiz yang ingin Anda kerjakan</p>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <p class="text-gray-500 text-lg">Belum ada quiz yang tersedia.</p>
+    </div>
+}
+else
+{
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var quiz in Model)
+        {
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                <div class="gradient-bg p-6">
+                    <h3 class="text-xl font-bold text-white">@quiz.Title</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">@(string.IsNullOrEmpty(quiz.Description) ? "Tidak ada deskripsi" : quiz.Description)</p>
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            @quiz.Questions.Count soal
+                        </span>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            @quiz.DurationMinutes menit
+                        </span>
+                    </div>
+                    <a asp-controller="Quiz" asp-action="Take" asp-route-id="@quiz.Id"
+                       class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition">
+                        Mulai Quiz
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}

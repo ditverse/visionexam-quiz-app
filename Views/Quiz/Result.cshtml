@@ -1,0 +1,76 @@
+@model QuizApp.Models.QuizAttempt
+@{
+    ViewData["Title"] = "Hasil Quiz";
+    var percentage = Model.MaxScore > 0 ? (double)Model.Score / Model.MaxScore * 100 : 0;
+    var grade = percentage >= 80 ? "A" : percentage >= 70 ? "B" : percentage >= 60 ? "C" : percentage >= 50 ? "D" : "E";
+}
+
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="gradient-bg p-8 text-center text-white">
+            <h1 class="text-3xl font-bold mb-2">Quiz Selesai!</h1>
+            <p class="opacity-90">@Model.Quiz?.Title</p>
+        </div>
+
+        <!-- Score -->
+        <div class="p-8 text-center border-b">
+            <div class="inline-flex items-center justify-center w-32 h-32 rounded-full @(percentage >= 60 ? "bg-green-100" : "bg-red-100") mb-4">
+                <span class="text-4xl font-bold @(percentage >= 60 ? "text-green-600" : "text-red-600")">@grade</span>
+            </div>
+            <div class="text-4xl font-bold text-gray-900 mb-2">
+                @Model.Score / @Model.MaxScore
+            </div>
+            <p class="text-gray-600">(@percentage.ToString("F1")%)</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="p-8 grid grid-cols-2 gap-6">
+            <div class="text-center p-4 bg-gray-50 rounded-xl">
+                <div class="text-2xl font-bold text-gray-900">@Model.Quiz?.Questions.Count</div>
+                <div class="text-sm text-gray-600">Jumlah Soal</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-xl">
+                <div class="text-2xl font-bold text-gray-900">@((Model.CompletedAt - Model.StartedAt)?.TotalMinutes.ToString("F1")) menit</div>
+                <div class="text-sm text-gray-600">Waktu Pengerjaan</div>
+            </div>
+        </div>
+
+        <!-- Violations -->
+        @if (Model.Violations.Count > 0)
+        {
+            <div class="p-8 border-t">
+                <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    Catatan Pelanggaran (@Model.Violations.Count)
+                </h3>
+                <div class="bg-orange-50 rounded-lg p-4">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        @{
+                            var lookLeft = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookLeft);
+                            var lookRight = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookRight);
+                            var noFace = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.NoFace);
+                            var multiFace = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.MultipleFaces);
+                        }
+                        <div class="flex justify-between"><span>Menoleh Kiri:</span><span class="font-medium">@lookLeft</span></div>
+                        <div class="flex justify-between"><span>Menoleh Kanan:</span><span class="font-medium">@lookRight</span></div>
+                        <div class="flex justify-between"><span>Wajah Tidak Terdeteksi:</span><span class="font-medium">@noFace</span></div>
+                        <div class="flex justify-between"><span>Banyak Wajah:</span><span class="font-medium">@multiFace</span></div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Actions -->
+        <div class="p-8 border-t bg-gray-50 flex justify-center space-x-4">
+            <a asp-controller="Quiz" asp-action="Index" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+                Quiz Lainnya
+            </a>
+            <a asp-controller="Quiz" asp-action="History" class="px-6 py-3 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-lg border transition">
+                Riwayat Quiz
+            </a>
+        </div>
+    </div>
+</div>
