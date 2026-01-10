@@ -1,65 +1,112 @@
 @{
-    ViewData["Title"] = "Daftar";
+    ViewData["Title"] = "Daftar - VisionExam";
 }
 
-<div class="min-h-[70vh] flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Daftar Akun</h1>
-            <p class="text-gray-600 mt-2">Buat akun baru untuk memulai quiz</p>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Logo & Header -->
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-eye"></i>
+                <span>VisionExam</span>
+            </div>
+            <h1 class="auth-title">Buat Akun Baru</h1>
+            <p class="auth-subtitle">Bergabunglah dengan platform ujian online terpercaya</p>
         </div>
 
-        @if (ViewData["Error"] != null)
-        {
-            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                @ViewData["Error"]
-            </div>
-        }
-
-        <form method="post" asp-controller="Auth" asp-action="Register">
+        <!-- Register Form -->
+        <form asp-controller="Auth" asp-action="Register" method="post" class="auth-form">
             @Html.AntiForgeryToken()
+            
+            @if (ViewData["Error"] != null)
+            {
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>@ViewData["Error"]</span>
+                </div>
+            }
 
-            <div class="mb-4">
-                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                <input type="text" id="username" name="username" required minlength="3" maxlength="50"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                       placeholder="Minimal 3 karakter">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" name="username" class="form-control" 
+                           placeholder="Buat username" required minlength="3">
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           placeholder="email@example.com" required>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input type="email" id="email" name="email" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                       placeholder="email@example.com">
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <div class="password-input">
+                    <input type="password" id="password" name="password" class="form-control" 
+                           placeholder="Minimal 6 karakter" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <span class="strength-text" id="strengthText">Kekuatan password</span>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input type="password" id="password" name="password" required minlength="6"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                       placeholder="Minimal 6 karakter">
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Konfirmasi Password
+                </label>
+                <div class="password-input">
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" 
+                           placeholder="Ulangi password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
-            <div class="mb-6">
-                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                       placeholder="Ulangi password">
+            <div class="form-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="terms" required>
+                    <span class="checkmark"></span>
+                    Saya setuju dengan <a href="#" class="auth-link">syarat dan ketentuan</a>
+                </label>
             </div>
 
-            <button type="submit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition transform hover:scale-[1.02]">
-                Daftar
+            <button type="submit" class="btn btn-primary btn-full">
+                <i class="fas fa-user-plus"></i>
+                Daftar Sekarang
             </button>
         </form>
 
-        <div class="mt-6 text-center">
-            <p class="text-gray-600">
-                Sudah punya akun? 
-                <a asp-controller="Auth" asp-action="Login" class="text-indigo-600 hover:text-indigo-800 font-semibold">
-                    Login di sini
-                </a>
-            </p>
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p>Sudah punya akun? <a href="/Auth/Login" class="auth-link">Masuk di sini</a></p>
         </div>
     </div>
+
+    <!-- Background Decoration -->
+    <div class="auth-bg-decoration">
+        <div class="bg-circle bg-circle-1"></div>
+        <div class="bg-circle bg-circle-2"></div>
+        <div class="bg-circle bg-circle-3"></div>
+    </div>
 </div>
+
+<link rel="stylesheet" href="~/css/auth.css" />
+<script src="~/js/auth.js"></script>
