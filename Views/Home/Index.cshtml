@@ -1,74 +1,443 @@
 ﻿@{
-    ViewData["Title"] = "Selamat Datang";
+    ViewData["Title"] = "VisionExam - Platform Ujian Online Terpercaya";
 }
 
-<div class="text-center py-12">
-    <!-- Hero Section -->
-    <div class="mb-12">
-        <h1 class="text-5xl font-bold text-gray-900 mb-4">
-            Vision<span class="text-indigo-600">Exam</span>
-        </h1>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Aplikasi Quiz dengan Deteksi Gerakan Wajah untuk memastikan integritas ujian Anda.
-        </p>
-    </div>
-
-    <!-- Features -->
-    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-12">
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
-            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Quiz Interaktif</h3>
-            <p class="text-gray-600">Kerjakan quiz dengan antarmuka yang mudah dan responsif.</p>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
-            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Deteksi Wajah</h3>
-            <p class="text-gray-600">Teknologi ML untuk memantau gerakan wajah selama ujian.</p>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover">
-            <div class="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Laporan Detail</h3>
-            <p class="text-gray-600">Lihat hasil quiz lengkap dengan catatan aktivitas.</p>
-        </div>
-    </div>
-
-    <!-- CTA -->
-    @if (User.Identity?.IsAuthenticated != true)
-    {
-        <div class="space-x-4">
-            <a asp-controller="Auth" asp-action="Register" class="inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg transition transform hover:scale-105">
-                Mulai Sekarang
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                </svg>
-            </a>
-            <a asp-controller="Auth" asp-action="Login" class="inline-flex items-center px-8 py-3 bg-white hover:bg-gray-50 text-indigo-600 font-semibold rounded-xl shadow-lg border-2 border-indigo-600 transition">
-                Login
-            </a>
-        </div>
-    }
-    else
-    {
-        <a asp-controller="Quiz" asp-action="Index" class="inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg transition transform hover:scale-105">
-            Mulai Quiz
-            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-            </svg>
-        </a>
-    }
+<!-- Subtle Animated Background -->
+<div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gray-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div class="absolute top-40 left-40 w-80 h-80 bg-indigo-100 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
 </div>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <!-- Subtle Particles Background -->
+    <div class="hero-bg">
+        <canvas id="particles-canvas"></canvas>
+    </div>
+    
+    <div class="hero-content">
+        <!-- Simple Badge -->
+        <div class="hero-badge">
+            <span class="status-dot"></span>
+            <span>Platform Ujian Online Modern</span>
+        </div>
+        
+        <!-- Main Title -->
+        <h1 class="hero-title">
+            Vision<span class="gradient-text">Exam</span>
+        </h1>
+        
+        <!-- Subtitle with Typing Effect -->
+        <div class="hero-subtitle">
+            <span id="typing-text"></span>
+            <span class="cursor">|</span>
+        </div>
+        
+        <!-- Description -->
+        <p class="hero-description">
+            Platform ujian online dengan sistem pengawasan terintegrasi untuk memastikan 
+            integritas dan keadilan dalam setiap sesi ujian.
+        </p>
+        
+        <!-- CTA Buttons -->
+        <div class="hero-cta">
+            @if (!User.Identity?.IsAuthenticated == true)
+            {
+                <a href="/Auth/Register" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus"></i>
+                    Daftar Sekarang
+                </a>
+                
+                <a href="/Auth/Login" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Masuk
+                </a>
+            }
+            else
+            {
+                <a href="/Quiz" class="btn btn-primary btn-lg">
+                    <i class="fas fa-clipboard-list"></i>
+                    Mulai Quiz
+                </a>
+            }
+        </div>
+        
+        <!-- Simple Features -->
+        <div class="hero-features">
+            <div class="hero-feature">
+                <i class="fas fa-eye"></i>
+                <span>Monitoring Real-time</span>
+            </div>
+            <div class="hero-feature">
+                <i class="fas fa-shield-alt"></i>
+                <span>Keamanan Terjamin</span>
+            </div>
+            <div class="hero-feature">
+                <i class="fas fa-chart-bar"></i>
+                <span>Laporan Lengkap</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <!-- Background Pattern -->
+    <div class="pattern-bg"></div>
+    
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header">
+            <div class="section-badge">
+                <i class="fas fa-star"></i>
+                <span>Fitur Utama</span>
+            </div>
+            <h2 class="section-title">Sistem Ujian yang Komprehensif</h2>
+            <p class="section-description">
+                Platform yang dirancang khusus untuk kebutuhan ujian online dengan 
+                pengawasan yang efektif dan hasil yang akurat.
+            </p>
+        </div>
+        
+        <!-- Feature Cards -->
+        <div class="features-grid">
+            <!-- Feature 1: Quiz Management -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                </div>
+                <h3 class="feature-title">Manajemen Quiz</h3>
+                <p class="feature-description">
+                    Buat dan kelola soal-soal dengan mudah. Sistem yang fleksibel untuk berbagai 
+                    jenis ujian dengan pilihan ganda, essay, dan format lainnya.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i>Berbagai format soal</li>
+                    <li><i class="fas fa-check-circle"></i>Timer otomatis</li>
+                    <li><i class="fas fa-check-circle"></i>Acak soal dan opsi</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 2: Face Monitoring -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </div>
+                <h3 class="feature-title">Monitoring Wajah</h3>
+                <p class="feature-description">
+                    Sistem pengawasan yang memantau peserta selama ujian untuk memastikan 
+                    integritas dan mencegah kecurangan.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i>Deteksi gerakan wajah</li>
+                    <li><i class="fas fa-check-circle"></i>Notifikasi pelanggaran</li>
+                    <li><i class="fas fa-check-circle"></i>Log aktivitas peserta</li>
+                </ul>
+            </div>
+            
+            <!-- Feature 3: Results & Analytics -->
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <h3 class="feature-title">Hasil & Analitik</h3>
+                <p class="feature-description">
+                    Laporan hasil yang komprehensif dengan analisis performa dan 
+                    catatan pelanggaran untuk evaluasi yang mendalam.
+                </p>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check-circle"></i>Skor otomatis</li>
+                    <li><i class="fas fa-check-circle"></i>Statistik performa</li>
+                    <li><i class="fas fa-check-circle"></i>Riwayat lengkap</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Cara Kerja VisionExam</h2>
+            <p class="section-description">
+                Proses sederhana namun efektif untuk ujian online yang terpercaya
+            </p>
+        </div>
+        
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Buat Akun</h3>
+                    <p>Daftar sebagai peserta atau admin untuk mulai menggunakan platform</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Konfigurasi Quiz</h3>
+                    <p>Buat soal-soal dan atur parameter ujian sesuai kebutuhan</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Monitoring Aktif</h3>
+                    <p>Sistem memantau aktivitas peserta selama ujian berlangsung</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Lihat Hasil</h3>
+                    <p>Dapatkan laporan lengkap tentang hasil dan integritas ujian</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack Section -->
+<section class="tech-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Teknologi yang Digunakan</h2>
+            <p class="section-description">
+                Platform dibangun dengan teknologi modern untuk performa dan keamanan terbaik
+            </p>
+        </div>
+        
+        <div class="tech-grid">
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h4>ASP.NET Core</h4>
+                <p>Framework web yang powerful dan scalable</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h4>PostgreSQL</h4>
+                <p>Database yang reliable untuk data ujian</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h4>Face Detection</h4>
+                <p>Monitoring wajah real-time yang akurat</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4>Enkripsi Data</h4>
+                <p>Keamanan data dengan enkripsi end-to-end</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h4>Responsive Design</h4>
+                <p>Perfect di semua perangkat dan ukuran layar</p>
+            </div>
+            
+            <div class="tech-card">
+                <div class="tech-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h4>High Performance</h4>
+                <p>Optimasi untuk pengalaman yang smooth</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Demo Section -->
+<section class="demo-section">
+    <div class="container">
+        <div class="demo-grid">
+            <!-- Content -->
+            <div class="demo-content">
+                <div class="demo-badge">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Demo</span>
+                </div>
+                <h2 class="demo-title">
+                    Lihat Cara Kerja <span class="gradient-text">Monitoring</span>
+                </h2>
+                <p class="demo-description">
+                    Sistem kami memantau aktivitas peserta selama ujian untuk memastikan 
+                    integritas dan mencegah kecurangan.
+                </p>
+                
+                <!-- Demo Features -->
+                <div class="demo-features">
+                    <div class="demo-feature">
+                        <div class="demo-feature-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div>
+                            <h4>Face Detection</h4>
+                            <p>Identifikasi wajah peserta ujian</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-feature">
+                        <div class="demo-feature-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <h4>Violation Detection</h4>
+                            <p>Deteksi aktivitas mencurigakan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-feature">
+                        <div class="demo-feature-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div>
+                            <h4>Activity Logging</h4>
+                            <p>Catatan lengkap aktivitas peserta</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    Lihat Demo
+                </button>
+            </div>
+            
+            <!-- Interactive Demo Area -->
+            <div class="demo-visual">
+                <div class="demo-camera">
+                    <!-- Mock Camera View -->
+                    <div class="camera-view">
+                        <div class="camera-content">
+                            <div class="face-detection">
+                                <div class="face-outline">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <p class="detection-status">Wajah Terdeteksi</p>
+                                <p class="detection-position">Posisi: Tengah</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Detection Overlay -->
+                        <div class="detection-overlay">
+                            <span class="detection-indicator">
+                                <i class="fas fa-circle status-dot"></i>
+                                Monitoring Aktif
+                            </span>
+                        </div>
+                        
+                        <!-- Detection Points -->
+                        <div class="detection-point point-1"></div>
+                        <div class="detection-point point-2"></div>
+                        <div class="detection-point point-3"></div>
+                    </div>
+                    
+                    <!-- Detection Stats -->
+                    <div class="detection-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">98%</div>
+                            <div class="stat-label">Akurasi</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Pelanggaran</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">1</div>
+                            <div class="stat-label">Wajah</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-bg"></div>
+    
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">
+                Siap Memulai Ujian Online yang 
+                <span class="gradient-text">Lebih Terpercaya?</span>
+            </h2>
+            <p class="cta-description">
+                Bergabunglah dengan platform ujian online yang mengutamakan integritas 
+                dan keamanan untuk hasil yang adil dan akurat.
+            </p>
+            
+            <div class="cta-buttons">
+                @if (!User.Identity?.IsAuthenticated == true)
+                {
+                    <a href="/Auth/Register" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus"></i>
+                        Daftar Gratis
+                    </a>
+                    
+                    <a href="#" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-info-circle"></i>
+                        Pelajari Lebih Lanjut
+                    </a>
+                }
+                else
+                {
+                    <a href="/Quiz" class="btn btn-primary btn-lg">
+                        <i class="fas fa-clipboard-list"></i>
+                        Mulai Quiz
+                    </a>
+                }
+            </div>
+            
+            <!-- Simple Features -->
+            <div class="cta-features">
+                <div class="cta-feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>100% Gratis</span>
+                </div>
+                <div class="cta-feature">
+                    <i class="fas fa-lock"></i>
+                    <span>Data Aman</span>
+                </div>
+                <div class="cta-feature">
+                    <i class="fas fa-headset"></i>
+                    <span>Support 24/7</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Link to external CSS and JS -->
+<link rel="stylesheet" href="~/css/home.css" />
+<script src="~/js/home.js"></script>

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Kuliah Tingkat 2\\Semester 3\\PBO\\tubes-pbo\\QuizApp.csproj": {}
+    "C:\\Users\\Zahra\\Documents\\Pemerogaman Dasar\\visionexam-quiz-app\\QuizApp.csproj": {}
   },
   "projects": {
-    "D:\\Kuliah Tingkat 2\\Semester 3\\PBO\\tubes-pbo\\QuizApp.csproj": {
+    "C:\\Users\\Zahra\\Documents\\Pemerogaman Dasar\\visionexam-quiz-app\\QuizApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Kuliah Tingkat 2\\Semester 3\\PBO\\tubes-pbo\\QuizApp.csproj",
+        "projectUniqueName": "C:\\Users\\Zahra\\Documents\\Pemerogaman Dasar\\visionexam-quiz-app\\QuizApp.csproj",
         "projectName": "QuizApp",
-        "projectPath": "D:\\Kuliah Tingkat 2\\Semester 3\\PBO\\tubes-pbo\\QuizApp.csproj",
-        "packagesPath": "C:\\Users\\versedroid's\\.nuget\\packages\\",
-        "outputPath": "D:\\Kuliah Tingkat 2\\Semester 3\\PBO\\tubes-pbo\\obj\\",
+        "projectPath": "C:\\Users\\Zahra\\Documents\\Pemerogaman Dasar\\visionexam-quiz-app\\QuizApp.csproj",
+        "packagesPath": "C:\\Users\\Zahra\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Zahra\\Documents\\Pemerogaman Dasar\\visionexam-quiz-app\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\versedroid's\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Zahra\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -88,7 +88,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
