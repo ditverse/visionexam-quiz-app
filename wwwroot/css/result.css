@@ -1,0 +1,207 @@
+/* ====== QUIZ RESULT STYLES ====== */
+.result-container {
+    padding: 32px;
+    background: var(--gray-50);
+    min-height: 100vh;
+}
+
+.result-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.success-animation {
+    margin-bottom: 24px;
+}
+
+.success-circle {
+    width: 100px;
+    height: 100px;
+    background: var(--success-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    animation: successPulse 2s ease-in-out;
+}
+
+.success-circle i {
+    color: white;
+    font-size: 48px;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.result-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+}
+
+.result-subtitle {
+    font-size: 18px;
+    color: var(--gray-600);
+}
+
+.grade-section {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.grade-display {
+    display: inline-block;
+    padding: 32px 48px;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.grade-letter {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.grade-score {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.grade-percentage {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+.grade-success .grade-letter { color: var(--success-color); }
+.grade-primary .grade-letter { color: var(--primary-color); }
+.grade-warning .grade-letter { color: var(--warning-color); }
+.grade-orange .grade-letter { color: #f97316; }
+.grade-danger .grade-letter { color: var(--danger-color); }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.violations-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.violations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.violation-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    transition: all 0.3s ease;
+}
+
+.violation-card.violation-active {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.violation-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-200);
+    color: var(--gray-600);
+}
+
+.violation-active .violation-icon {
+    background: var(--warning-color);
+    color: white;
+}
+
+.violation-title {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 14px;
+}
+
+.violation-count {
+    color: var(--gray-600);
+    font-size: 12px;
+}
+
+.clean-section {
+    text-align: center;
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.clean-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .result-container {
+        padding: 20px;
+    }
+    
+    .grade-display {
+        padding: 24px 32px;
+    }
+    
+    .grade-letter {
+        font-size: 48px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}

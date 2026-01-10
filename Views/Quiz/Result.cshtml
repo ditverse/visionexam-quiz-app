@@ -1,76 +1,159 @@
 @model QuizApp.Models.QuizAttempt
 @{
-    ViewData["Title"] = "Hasil Quiz";
+    ViewData["Title"] = "Hasil Quiz - VisionExam";
     var percentage = Model.MaxScore > 0 ? (double)Model.Score / Model.MaxScore * 100 : 0;
     var grade = percentage >= 80 ? "A" : percentage >= 70 ? "B" : percentage >= 60 ? "C" : percentage >= 50 ? "D" : "E";
+    var gradeColor = percentage >= 80 ? "success" : percentage >= 70 ? "primary" : percentage >= 60 ? "warning" : percentage >= 50 ? "orange" : "danger";
 }
 
-<div class="max-w-3xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <!-- Header -->
-        <div class="gradient-bg p-8 text-center text-white">
-            <h1 class="text-3xl font-bold mb-2">Quiz Selesai!</h1>
-            <p class="opacity-90">@Model.Quiz?.Title</p>
-        </div>
-
-        <!-- Score -->
-        <div class="p-8 text-center border-b">
-            <div class="inline-flex items-center justify-center w-32 h-32 rounded-full @(percentage >= 60 ? "bg-green-100" : "bg-red-100") mb-4">
-                <span class="text-4xl font-bold @(percentage >= 60 ? "text-green-600" : "text-red-600")">@grade</span>
-            </div>
-            <div class="text-4xl font-bold text-gray-900 mb-2">
-                @Model.Score / @Model.MaxScore
-            </div>
-            <p class="text-gray-600">(@percentage.ToString("F1")%)</p>
-        </div>
-
-        <!-- Stats -->
-        <div class="p-8 grid grid-cols-2 gap-6">
-            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                <div class="text-2xl font-bold text-gray-900">@Model.Quiz?.Questions.Count</div>
-                <div class="text-sm text-gray-600">Jumlah Soal</div>
-            </div>
-            <div class="text-center p-4 bg-gray-50 rounded-xl">
-                <div class="text-2xl font-bold text-gray-900">@((Model.CompletedAt - Model.StartedAt)?.TotalMinutes.ToString("F1")) menit</div>
-                <div class="text-sm text-gray-600">Waktu Pengerjaan</div>
+<div class="result-container">
+    <!-- Success Header -->
+    <div class="result-header">
+        <div class="success-animation">
+            <div class="success-circle">
+                <i class="fas fa-check"></i>
             </div>
         </div>
+        <h1 class="result-title">Quiz Selesai!</h1>
+        <p class="result-subtitle">@Model.Quiz?.Title</p>
+    </div>
 
-        <!-- Violations -->
-        @if (Model.Violations.Count > 0)
-        {
-            <div class="p-8 border-t">
-                <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
+    <!-- Grade Display -->
+    <div class="grade-section">
+        <div class="grade-display grade-@gradeColor">
+            <div class="grade-letter">@grade</div>
+            <div class="grade-score">@Model.Score / @Model.MaxScore</div>
+            <div class="grade-percentage">(@percentage.ToString("F1")%)</div>
+        </div>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@Model.Quiz?.Questions.Count</div>
+                <div class="stat-label">Jumlah Soal</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@((Model.CompletedAt - Model.StartedAt)?.TotalMinutes.ToString("F1"))</div>
+                <div class="stat-label">Waktu (menit)</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@Model.Score</div>
+                <div class="stat-label">Skor Benar</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">@percentage.ToString("F0")%</div>
+                <div class="stat-label">Akurasi</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Violations Section -->
+    @if (Model.Violations.Count > 0)
+    {
+        <div class="violations-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i>
                     Catatan Pelanggaran (@Model.Violations.Count)
-                </h3>
-                <div class="bg-orange-50 rounded-lg p-4">
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        @{
-                            var lookLeft = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookLeft);
-                            var lookRight = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookRight);
-                            var noFace = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.NoFace);
-                            var multiFace = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.MultipleFaces);
-                        }
-                        <div class="flex justify-between"><span>Menoleh Kiri:</span><span class="font-medium">@lookLeft</span></div>
-                        <div class="flex justify-between"><span>Menoleh Kanan:</span><span class="font-medium">@lookRight</span></div>
-                        <div class="flex justify-between"><span>Wajah Tidak Terdeteksi:</span><span class="font-medium">@noFace</span></div>
-                        <div class="flex justify-between"><span>Banyak Wajah:</span><span class="font-medium">@multiFace</span></div>
+                </h2>
+            </div>
+            
+            <div class="violations-grid">
+                @{
+                    var lookLeft = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookLeft);
+                    var lookRight = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookRight);
+                    var noFace = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.NoFace);
+                    var multiFace = Model.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.MultipleFaces);
+                }
+                
+                <div class="violation-card @(lookLeft > 0 ? "violation-active" : "")">
+                    <div class="violation-icon">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <div class="violation-content">
+                        <div class="violation-title">Menoleh Kiri</div>
+                        <div class="violation-count">@lookLeft kali</div>
+                    </div>
+                </div>
+                
+                <div class="violation-card @(lookRight > 0 ? "violation-active" : "")">
+                    <div class="violation-icon">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="violation-content">
+                        <div class="violation-title">Menoleh Kanan</div>
+                        <div class="violation-count">@lookRight kali</div>
+                    </div>
+                </div>
+                
+                <div class="violation-card @(noFace > 0 ? "violation-active" : "")">
+                    <div class="violation-icon">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                    <div class="violation-content">
+                        <div class="violation-title">Wajah Tidak Terdeteksi</div>
+                        <div class="violation-count">@noFace kali</div>
+                    </div>
+                </div>
+                
+                <div class="violation-card @(multiFace > 0 ? "violation-active" : "")">
+                    <div class="violation-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="violation-content">
+                        <div class="violation-title">Banyak Wajah</div>
+                        <div class="violation-count">@multiFace kali</div>
                     </div>
                 </div>
             </div>
-        }
-
-        <!-- Actions -->
-        <div class="p-8 border-t bg-gray-50 flex justify-center space-x-4">
-            <a asp-controller="Quiz" asp-action="Index" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
-                Quiz Lainnya
-            </a>
-            <a asp-controller="Quiz" asp-action="History" class="px-6 py-3 bg-white hover:bg-gray-100 text-gray-700 font-semibold rounded-lg border transition">
-                Riwayat Quiz
-            </a>
         </div>
+    }
+    else
+    {
+        <div class="clean-section">
+            <div class="clean-badge">
+                <i class="fas fa-shield-check"></i>
+                <span>Tidak Ada Pelanggaran</span>
+            </div>
+            <p>Selamat! Anda mengerjakan quiz dengan integritas yang baik.</p>
+        </div>
+    }
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/Quiz" class="btn btn-primary">
+            <i class="fas fa-play"></i>
+            Quiz Lainnya
+        </a>
+        <a href="/Quiz/History" class="btn btn-secondary">
+            <i class="fas fa-history"></i>
+            Riwayat Quiz
+        </a>
     </div>
 </div>
+
+<link rel="stylesheet" href="~/css/result.css" />
+<script src="~/js/result.js"></script>
