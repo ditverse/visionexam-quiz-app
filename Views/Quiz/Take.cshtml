@@ -5,361 +5,231 @@
     var startedAt = ViewData["StartedAt"];
 }
 
-<div class="grid lg:grid-cols-3 gap-6">
-    <!-- Main Quiz Area -->
-    <div class="lg:col-span-2">
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">@Model.Title</h1>
-                <div id="timer" class="text-xl font-mono bg-indigo-100 text-indigo-800 px-4 py-2 rounded-lg">
-                    00:00
+<div class="quiz-take-container">
+    <!-- Quiz Header -->
+    <div class="quiz-header">
+        <div class="quiz-info">
+            <h1 class="quiz-title">@Model.Title</h1>
+            <div class="quiz-meta">
+                <span class="question-counter">Soal <span id="currentQuestion">1</span> dari @Model.Questions.Count</span>
+                <span class="quiz-points">@Model.Questions.Sum(q => q.Points) poin total</span>
+            </div>
+        </div>
+        <div class="quiz-timer">
+            <div class="timer-display">
+                <i class="fas fa-clock"></i>
+                <span id="timer">00:00</span>
+            </div>
+            <div class="timer-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="timerProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-content">
+        <!-- Main Quiz Area -->
+        <div class="quiz-main">
+            <!-- Question Navigation -->
+            <div class="question-nav">
+                <div class="nav-header">
+                    <h3>Navigasi Soal</h3>
+                    <div class="nav-legend">
+                        <span class="legend-item current">Saat Ini</span>
+                        <span class="legend-item answered">Terjawab</span>
+                        <span class="legend-item unanswered">Belum</span>
+                    </div>
+                </div>
+                <div class="nav-grid">
+                    @for (int i = 0; i < Model.Questions.Count; i++)
+                    {
+                        <button class="nav-btn" data-question="@i" onclick="goToQuestion(@i)">
+                            @(i + 1)
+                        </button>
+                    }
                 </div>
             </div>
 
-            <!-- Warning Banner -->
-            <div id="warning-banner" class="hidden mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded warning-pulse">
-                <div class="flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <span id="warning-message">Peringatan!</span>
-                </div>
-            </div>
-
-            <!-- Questions -->
-            <div id="questions-container">
+            <!-- Question Display -->
+            <div class="question-display">
                 @for (int i = 0; i < Model.Questions.Count; i++)
                 {
-                    var question = Model.Questions.ElementAt(i);
+                    var question = Model.Questions[i];
                     var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson) ?? new List<string>();
                     
-                    <div class="question-card mb-6 p-6 border rounded-xl @(i == 0 ? "" : "hidden")" data-question-id="@question.Id" data-index="@i">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-sm font-medium text-indigo-600">Soal @(i + 1) dari @Model.Questions.Count</span>
-                            <span class="text-sm text-gray-500">@question.Points poin</span>
+                    <div class="question-panel" id="question-@i" style="display: @(i == 0 ? "block" : "none")">
+                        <div class="question-header">
+                            <div class="question-number">Soal @(i + 1)</div>
+                            <div class="question-points">@question.Points poin</div>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">@question.Text</h3>
                         
-                        <div class="space-y-3">
+                        <div class="question-text">
+                            <h3>@question.Text</h3>
+                        </div>
+                        
+                        <div class="options-container">
                             @for (int j = 0; j < options.Count; j++)
                             {
-                                <label class="option-label flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-indigo-300 hover:bg-indigo-50 transition">
-                                    <input type="radio" name="question_@question.Id" value="@j" class="w-5 h-5 text-indigo-600">
-                                    <span class="ml-3 text-gray-700">@options[j]</span>
-                                </label>
+                                <div class="option-item">
+                                    <input type="radio" name="question-@i" id="option-@i-@j" value="@j" class="option-radio">
+                                    <label for="option-@i-@j" class="option-label">
+                                        <span class="option-letter">@(char)('A' + j)</span>
+                                        <span class="option-text">@options[j]</span>
+                                    </label>
+                                </div>
                             }
                         </div>
                     </div>
                 }
             </div>
 
-            <!-- Navigation -->
-            <div class="flex justify-between mt-6">
-                <button id="prev-btn" onclick="prevQuestion()" disabled
-                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition hover:bg-gray-300">
+            <!-- Navigation Buttons -->
+            <div class="quiz-navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                    <i class="fas fa-chevron-left"></i>
                     Sebelumnya
                 </button>
-                <button id="next-btn" onclick="nextQuestion()"
-                        class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium transition hover:bg-indigo-700">
+                
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
                     Selanjutnya
+                    <i class="fas fa-chevron-right"></i>
                 </button>
-                <form id="complete-form" method="post" asp-controller="Quiz" asp-action="Complete" class="hidden">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="attemptId" value="@attemptId" />
-                    <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium transition hover:bg-green-700">
-                        Selesai & Submit
-                    </button>
-                </form>
+                
+                <button class="btn btn-success" id="submitBtn" onclick="submitQuiz()" style="display: none;">
+                    <i class="fas fa-check"></i>
+                    Selesai & Submit
+                </button>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="quiz-sidebar">
+            <!-- Webcam Monitor -->
+            <div class="webcam-section">
+                <div class="section-header">
+                    <h3>
+                        <i class="fas fa-video"></i>
+                        Webcam Monitor
+                    </h3>
+                    <div class="status-indicator active">
+                        <span class="status-dot"></span>
+                        Active
+                    </div>
+                </div>
+                <div class="webcam-view">
+                    <video id="webcam" autoplay muted></video>
+                    <div class="webcam-overlay">
+                        <div class="detection-box">
+                            <div class="detection-status">
+                                <i class="fas fa-user"></i>
+                                <span>Wajah Terdeteksi</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Violations Stats -->
+            <div class="violations-stats">
+                <div class="section-header">
+                    <h3>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Statistik Pelanggaran
+                    </h3>
+                </div>
+                <div class="stats-list">
+                    <div class="stat-item">
+                        <div class="stat-icon left">
+                            <i class="fas fa-arrow-left"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Menoleh Kiri</div>
+                            <div class="stat-count" id="lookLeftCount">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon right">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Menoleh Kanan</div>
+                            <div class="stat-count" id="lookRightCount">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon no-face">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Wajah Tidak Terdeteksi</div>
+                            <div class="stat-count" id="noFaceCount">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon multi-face">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">Banyak Wajah</div>
+                            <div class="stat-count" id="multiFaceCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Info -->
+            <div class="quiz-info-sidebar">
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <div class="info-label">Durasi</div>
+                        <div class="info-value">@Model.DurationMinutes menit</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-question-circle"></i>
+                    <div>
+                        <div class="info-label">Total Soal</div>
+                        <div class="info-value">@Model.Questions.Count</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-star"></i>
+                    <div>
+                        <div class="info-label">Total Poin</div>
+                        <div class="info-value">@Model.Questions.Sum(q => q.Points)</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Sidebar: Webcam & Stats -->
-    <div class="space-y-6">
-        <!-- Webcam -->
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                </svg>
-                Webcam Monitor
-            </h3>
-            <div class="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
-                <video id="webcam" autoplay muted playsinline class="w-full h-full object-cover"></video>
-                <canvas id="overlay" class="absolute top-0 left-0 w-full h-full"></canvas>
-                <div id="webcam-status" class="absolute bottom-2 left-2 text-xs text-white bg-black/50 px-2 py-1 rounded">
-                    Loading...
-                </div>
+    <!-- Warning Modal -->
+    <div class="modal" id="warningModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Peringatan!</h3>
             </div>
-        </div>
-
-        <!-- Violation Stats -->
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="font-semibold text-gray-900 mb-4">Statistik Pelanggaran</h3>
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Menoleh Kiri:</span>
-                    <span id="stat-left" class="font-medium">0</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Menoleh Kanan:</span>
-                    <span id="stat-right" class="font-medium">0</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Wajah Tidak Terdeteksi:</span>
-                    <span id="stat-noface" class="font-medium">0</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Banyak Wajah:</span>
-                    <span id="stat-multi" class="font-medium">0</span>
-                </div>
+            <div class="modal-body">
+                <p id="warningMessage">Anda terdeteksi melakukan aktivitas mencurigakan!</p>
             </div>
-        </div>
-
-        <!-- Question Navigator -->
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h3 class="font-semibold text-gray-900 mb-4">Navigasi Soal</h3>
-            <div class="grid grid-cols-5 gap-2">
-                @for (int i = 0; i < Model.Questions.Count; i++)
-                {
-                    <button onclick="goToQuestion(@i)" 
-                            class="question-nav w-10 h-10 rounded-lg text-sm font-medium border-2 border-gray-200 hover:border-indigo-500 transition @(i == 0 ? "bg-indigo-600 text-white border-indigo-600" : "")"
-                            data-index="@i">
-                        @(i + 1)
-                    </button>
-                }
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeWarning()">OK</button>
             </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <!-- face-api.js from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    
-    <script>
-        const attemptId = @attemptId;
-        const durationMinutes = @Model.DurationMinutes;
-        const startedAt = new Date('@((DateTime)startedAt!).ToString("o")');
-        const totalQuestions = @Model.Questions.Count;
-        let currentQuestion = 0;
-        let answers = {};
-        let violationStats = { left: 0, right: 0, noface: 0, multi: 0 };
-        
-        // Anti-forgery token
-        const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+<form id="quizForm" asp-controller="Quiz" asp-action="Complete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="attemptId" value="@attemptId" />
+    <input type="hidden" id="answersData" name="answers" />
+</form>
 
-        // Timer
-        function updateTimer() {
-            const now = new Date();
-            const elapsed = Math.floor((now - startedAt) / 1000);
-            const remaining = (durationMinutes * 60) - elapsed;
-            
-            if (remaining <= 0) {
-                document.getElementById('complete-form').submit();
-                return;
-            }
-            
-            const mins = Math.floor(remaining / 60);
-            const secs = remaining % 60;
-            document.getElementById('timer').textContent = 
-                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            
-            if (remaining <= 60) {
-                document.getElementById('timer').classList.add('bg-red-100', 'text-red-800');
-                document.getElementById('timer').classList.remove('bg-indigo-100', 'text-indigo-800');
-            }
-        }
-        setInterval(updateTimer, 1000);
-        updateTimer();
-
-        // Question Navigation
-        function showQuestion(index) {
-            document.querySelectorAll('.question-card').forEach((card, i) => {
-                card.classList.toggle('hidden', i !== index);
-            });
-            document.querySelectorAll('.question-nav').forEach((btn, i) => {
-                btn.classList.toggle('bg-indigo-600', i === index);
-                btn.classList.toggle('text-white', i === index);
-                btn.classList.toggle('border-indigo-600', i === index);
-            });
-            
-            document.getElementById('prev-btn').disabled = index === 0;
-            document.getElementById('next-btn').classList.toggle('hidden', index === totalQuestions - 1);
-            document.getElementById('complete-form').classList.toggle('hidden', index !== totalQuestions - 1);
-            
-            currentQuestion = index;
-        }
-
-        function nextQuestion() {
-            saveCurrentAnswer();
-            if (currentQuestion < totalQuestions - 1) {
-                showQuestion(currentQuestion + 1);
-            }
-        }
-
-        function prevQuestion() {
-            saveCurrentAnswer();
-            if (currentQuestion > 0) {
-                showQuestion(currentQuestion - 1);
-            }
-        }
-
-        function goToQuestion(index) {
-            saveCurrentAnswer();
-            showQuestion(index);
-        }
-
-        function saveCurrentAnswer() {
-            const card = document.querySelector(`.question-card[data-index="${currentQuestion}"]`);
-            const questionId = card.dataset.questionId;
-            const selected = card.querySelector('input[type="radio"]:checked');
-            
-            if (selected) {
-                const selectedOption = parseInt(selected.value);
-                answers[questionId] = selectedOption;
-                
-                // Mark as answered
-                document.querySelector(`.question-nav[data-index="${currentQuestion}"]`).classList.add('bg-green-100', 'border-green-500');
-                
-                // Submit to server
-                fetch('/Quiz/SubmitAnswer', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'RequestVerificationToken': antiForgeryToken
-                    },
-                    body: `attemptId=${attemptId}&questionId=${questionId}&selectedOption=${selectedOption}`
-                });
-            }
-        }
-
-        // Face Detection
-        async function initFaceDetection() {
-            const video = document.getElementById('webcam');
-            const status = document.getElementById('webcam-status');
-            
-            try {
-                // Load models from CDN
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@@vladmandic/face-api@1.7.12/model/';
-                await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-                await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
-                
-                status.textContent = 'Requesting camera...';
-                
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 320, height: 240, facingMode: 'user' } 
-                });
-                video.srcObject = stream;
-                
-                video.onloadedmetadata = () => {
-                    status.textContent = 'Detecting...';
-                    detectFace();
-                };
-            } catch (err) {
-                console.error('Face detection error:', err);
-                status.textContent = 'Camera error!';
-                status.classList.add('bg-red-500');
-            }
-        }
-
-        async function detectFace() {
-            const video = document.getElementById('webcam');
-            const status = document.getElementById('webcam-status');
-            
-            const detections = await faceapi.detectAllFaces(
-                video, 
-                new faceapi.TinyFaceDetectorOptions()
-            ).withFaceLandmarks(true);
-            
-            // Check violations
-            if (detections.length === 0) {
-                logViolation(2, 'NoFace'); // ViolationType.NoFace = 2
-            } else if (detections.length > 1) {
-                logViolation(3, 'MultipleFaces'); // ViolationType.MultipleFaces = 3
-            } else {
-                // Check head direction using landmarks
-                const landmarks = detections[0].landmarks;
-                const nose = landmarks.getNose()[3];
-                const leftEye = landmarks.getLeftEye()[0];
-                const rightEye = landmarks.getRightEye()[3];
-                
-                const eyeCenter = (leftEye.x + rightEye.x) / 2;
-                const deviation = nose.x - eyeCenter;
-                
-                if (deviation < -15) {
-                    logViolation(0, 'LookLeft'); // ViolationType.LookLeft = 0
-                } else if (deviation > 15) {
-                    logViolation(1, 'LookRight'); // ViolationType.LookRight = 1
-                }
-                
-                status.textContent = 'Face OK';
-                status.className = 'absolute bottom-2 left-2 text-xs text-white bg-green-500/80 px-2 py-1 rounded';
-            }
-            
-            // Continue detection
-            setTimeout(detectFace, 500);
-        }
-
-        let lastViolationType = null;
-        let lastViolationTime = 0;
-
-        function logViolation(type, typeName) {
-            const now = Date.now();
-            
-            // Debounce same violation type (min 2 seconds apart)
-            if (lastViolationType === type && now - lastViolationTime < 2000) {
-                return;
-            }
-            
-            lastViolationType = type;
-            lastViolationTime = now;
-            
-            // Update stats
-            if (type === 0) violationStats.left++;
-            else if (type === 1) violationStats.right++;
-            else if (type === 2) violationStats.noface++;
-            else if (type === 3) violationStats.multi++;
-            
-            document.getElementById('stat-left').textContent = violationStats.left;
-            document.getElementById('stat-right').textContent = violationStats.right;
-            document.getElementById('stat-noface').textContent = violationStats.noface;
-            document.getElementById('stat-multi').textContent = violationStats.multi;
-            
-            // Show warning
-            const banner = document.getElementById('warning-banner');
-            const message = document.getElementById('warning-message');
-            
-            const messages = {
-                0: 'Anda terdeteksi melihat ke kiri!',
-                1: 'Anda terdeteksi melihat ke kanan!',
-                2: 'Wajah tidak terdeteksi!',
-                3: 'Terdeteksi lebih dari satu wajah!'
-            };
-            
-            message.textContent = messages[type];
-            banner.classList.remove('hidden');
-            setTimeout(() => banner.classList.add('hidden'), 3000);
-            
-            // Update webcam status
-            const status = document.getElementById('webcam-status');
-            status.textContent = typeName;
-            status.className = 'absolute bottom-2 left-2 text-xs text-white bg-red-500/80 px-2 py-1 rounded';
-            
-            // Send to server
-            fetch('/Violation/Log', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': antiForgeryToken
-                },
-                body: `attemptId=${attemptId}&violationType=${type}`
-            });
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initFaceDetection();
-        });
-    </script>
-}
+<link rel="stylesheet" href="~/css/quiz-take.css" />
+<script src="~/js/quiz-take.js"></script>
