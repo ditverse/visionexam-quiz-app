@@ -1,91 +1,158 @@
 @model List<QuizApp.Models.QuizAttempt>
 @{
-    ViewData["Title"] = "Riwayat Quiz";
+    ViewData["Title"] = "Riwayat Quiz - VisionExam";
 }
 
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Riwayat Quiz</h1>
-    <p class="text-gray-600 mt-2">Lihat semua quiz yang pernah Anda kerjakan</p>
+<div class="history-container">
+    <!-- Header -->
+    <div class="history-header">
+        <div class="header-content">
+            <h1 class="page-title">Riwayat Quiz</h1>
+            <p class="page-subtitle">Lihat semua quiz yang pernah Anda kerjakan</p>
+        </div>
+        <div class="header-actions">
+            <a href="/Quiz" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Quiz Baru
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-history"></i>
+            </div>
+            <h3>Belum Ada Riwayat</h3>
+            <p>Anda belum mengerjakan quiz apapun. Mulai quiz pertama Anda sekarang!</p>
+            <a href="/Quiz" class="btn btn-primary">
+                <i class="fas fa-play"></i>
+                Mulai Quiz
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Filter & Stats -->
+        <div class="history-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">@Model.Count</div>
+                    <div class="stat-label">Total Quiz</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">@Model.Count(a => a.IsCompleted)</div>
+                    <div class="stat-label">Selesai</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    @{
+                        var avgScore = Model.Where(a => a.IsCompleted && a.MaxScore > 0).DefaultIfEmpty().Average(a => a.MaxScore > 0 ? (double)a.Score / a.MaxScore * 100 : 0);
+                    }
+                    <div class="stat-number">@avgScore.ToString("F0")%</div>
+                    <div class="stat-label">Rata-rata Skor</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz History Grid -->
+        <div class="history-grid">
+            @foreach (var attempt in Model)
+            {
+                var percentage = attempt.MaxScore > 0 ? (double)attempt.Score / attempt.MaxScore * 100 : 0;
+                var grade = percentage >= 80 ? "A" : percentage >= 70 ? "B" : percentage >= 60 ? "C" : percentage >= 50 ? "D" : "E";
+                var gradeColor = percentage >= 80 ? "success" : percentage >= 70 ? "primary" : percentage >= 60 ? "warning" : percentage >= 50 ? "orange" : "danger";
+                
+                <div class="history-card">
+                    <div class="history-header">
+                        <h3 class="quiz-title">@attempt.Quiz?.Title</h3>
+                        <span class="quiz-status @(attempt.IsCompleted ? "status-completed" : "status-incomplete")">
+                            @(attempt.IsCompleted ? "Selesai" : "Belum Selesai")
+                        </span>
+                    </div>
+                    
+                    <div class="history-content">
+                        <div class="quiz-info">
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>@attempt.StartedAt.ToString("dd MMM yyyy, HH:mm")</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span>@((attempt.CompletedAt - attempt.StartedAt)?.TotalMinutes.ToString("F1")) menit</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-question-circle"></i>
+                                <span>@attempt.Quiz?.Questions.Count soal</span>
+                            </div>
+                        </div>
+                        
+                        <div class="score-section">
+                            <div class="score-display">
+                                <div class="score-grade grade-@gradeColor">@grade</div>
+                                <div class="score-details">
+                                    <div class="score-number">@attempt.Score/@attempt.MaxScore</div>
+                                    <div class="score-percentage">(@percentage.ToString("F0")%)</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if (attempt.Violations.Count > 0)
+                        {
+                            <div class="violations-section">
+                                <div class="violations-header">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>@attempt.Violations.Count Pelanggaran</span>
+                                </div>
+                                <div class="violations-list">
+                                    @{
+                                        var lookLeft = attempt.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookLeft);
+                                        var lookRight = attempt.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.LookRight);
+                                        var noFace = attempt.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.NoFace);
+                                        var multiFace = attempt.Violations.Count(v => v.Type == QuizApp.Models.ViolationType.MultipleFaces);
+                                    }
+                                    @if (lookLeft > 0) { <div class="violation-item">Menoleh Kiri: @lookLeft</div> }
+                                    @if (lookRight > 0) { <div class="violation-item">Menoleh Kanan: @lookRight</div> }
+                                    @if (noFace > 0) { <div class="violation-item">Wajah Tidak Terdeteksi: @noFace</div> }
+                                    @if (multiFace > 0) { <div class="violation-item">Banyak Wajah: @multiFace</div> }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="clean-badge">
+                                <i class="fas fa-shield-check"></i>
+                                <span>Bersih</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="history-footer">
+                        <a href="/Quiz/Result/@attempt.Id" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i>
+                            Lihat Detail
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
 
-@if (Model.Count == 0)
-{
-    <div class="text-center py-12">
-        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <p class="text-gray-500 text-lg mb-4">Anda belum mengerjakan quiz apapun.</p>
-        <a asp-controller="Quiz" asp-action="Index" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
-            Mulai Quiz
-        </a>
-    </div>
-}
-else
-{
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <table class="w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quiz</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skor</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggaran</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @foreach (var attempt in Model)
-                {
-                    var percentage = attempt.MaxScore > 0 ? (double)attempt.Score / attempt.MaxScore * 100 : 0;
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                            <div class="font-medium text-gray-900">@attempt.Quiz?.Title</div>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
-                            @attempt.StartedAt.ToString("dd MMM yyyy, HH:mm")
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="font-medium @(percentage >= 60 ? "text-green-600" : "text-red-600")">
-                                @attempt.Score / @attempt.MaxScore
-                            </span>
-                            <span class="text-gray-500 text-sm">(@percentage.ToString("F0")%)</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            @if (attempt.Violations.Count > 0)
-                            {
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                    @attempt.Violations.Count pelanggaran
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="text-green-600 text-sm">Bersih</span>
-                            }
-                        </td>
-                        <td class="px-6 py-4">
-                            @if (attempt.IsCompleted)
-                            {
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Selesai
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                    Belum Selesai
-                                </span>
-                            }
-                        </td>
-                        <td class="px-6 py-4">
-                            <a asp-controller="Quiz" asp-action="Result" asp-route-id="@attempt.Id" 
-                               class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">
-                                Detail
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+<link rel="stylesheet" href="~/css/history.css" />
+<script src="~/js/history.js"></script>
