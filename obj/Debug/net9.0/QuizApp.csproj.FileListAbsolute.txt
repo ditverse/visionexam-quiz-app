@@ -340,6 +340,11 @@ C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\
 C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\QuizApp.pdb
 C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\QuizApp.genruntimeconfig.cache
 C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\ref\QuizApp.dll
-C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\p8d7tdd3wa-dkilol0ydt.gz
 C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\2vqtw91wxc-gpt4re9kp6.gz
 C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\j76o5m5rsu-j8mktpr6wy.gz
+C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\c4k499qlbi-cdie66bdx9.gz
+C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\0u3cgtt0o2-od7r2p37du.gz
+C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\ui2eeo0ms1-mu3jm9gy6e.gz
+C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\wv2eofgovp-0g0x3orkrv.gz
+C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\ideuky408f-pa90i44piw.gz
+C:\Users\Zahra\Documents\Pemerogaman Dasar\visionexam-quiz-app\obj\Debug\net9.0\compressed\q7yh2pqi5v-uznlkqtxy6.gz
