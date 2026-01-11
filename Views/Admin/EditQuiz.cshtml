@@ -1,0 +1,181 @@
+@model QuizApp.Models.Quiz
+@{
+    ViewData["Title"] = $"Edit: {Model.Title} - VisionExam";
+}
+
+<div class="quiz-form-container">
+    <!-- Header -->
+    <div class="form-header">
+        <div class="header-breadcrumb">
+            <a href="/Admin/Dashboard" class="breadcrumb-link">
+                <i class="fas fa-arrow-left"></i>
+                Kembali ke Dashboard
+            </a>
+        </div>
+        <h1 class="page-title">Edit Quiz</h1>
+        <p class="page-subtitle">Edit informasi dan soal-soal quiz</p>
+    </div>
+
+    <form asp-controller="Admin" asp-action="EditQuiz" method="post" class="quiz-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <!-- Quiz Information -->
+        <div class="form-section">
+            <h2 class="section-title">Informasi Quiz</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title" class="form-label">
+                        <i class="fas fa-heading"></i>
+                        Judul
+                    </label>
+                    <input type="text" id="title" name="title" class="form-control" 
+                           value="@Model.Title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration" class="form-label">
+                        <i class="fas fa-clock"></i>
+                        Durasi (menit)
+                    </label>
+                    <input type="number" id="duration" name="duration" class="form-control" 
+                           value="@Model.DurationMinutes" min="1" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">
+                    <i class="fas fa-align-left"></i>
+                    Deskripsi
+                </label>
+                <textarea id="description" name="description" class="form-control" rows="3">@Model.Description</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="isActive" @(Model.IsActive ? "checked" : "")>
+                    <span class="checkmark"></span>
+                    Quiz Aktif
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Simpan Perubahan
+                </button>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2 class="section-title">Daftar Soal (@Model.Questions.Count)</h2>
+                <button type="button" class="btn btn-primary" onclick="addQuestion()">
+                    <i class="fas fa-plus"></i>
+                    Tambah Soal
+                </button>
+            </div>
+
+            <div id="questionsContainer">
+                @{
+                    int questionIndex = 0;
+                    foreach (var question in Model.Questions)
+                    {
+                        var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson) ?? new List<string>();
+                        
+                        <div class="question-item" data-question-id="@question.Id">
+                            <div class="question-header">
+                                <h3>Soal @(questionIndex + 1)</h3>
+                                <div class="question-actions">
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="removeQuestion(this)">
+                                        <i class="fas fa-trash"></i>
+                                        Hapus
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Pertanyaan</label>
+                                <textarea name="questions[@questionIndex].Text" class="form-control" rows="3" required>@question.Text</textarea>
+                                <input type="hidden" name="questions[@questionIndex].Id" value="@question.Id" />
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Poin</label>
+                                    <input type="number" name="questions[@questionIndex].Points" class="form-control" 
+                                           value="@question.Points" min="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Jawaban Benar</label>
+                                    <select name="questions[@questionIndex].CorrectOptionIndex" class="form-control" required>
+                                        @{
+                                            for (int j = 0; j < options.Count; j++)
+                                            {
+                                                var optionText = "Opsi " + Convert.ToChar(65 + j);
+                                                var isSelected = j == question.CorrectOptionIndex;
+                                                <option value="@j">@optionText</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="options-container">
+                                <label class="form-label">Opsi Jawaban</label>
+                                <div class="options-list">
+                                    @{
+                                        for (int j = 0; j < options.Count; j++)
+                                        {
+                                            var optionLetter = Convert.ToChar(65 + j);
+                                            var isDisabled = options.Count <= 2 ? "disabled" : "";
+                                            <div class="option-input-group">
+                                                <span class="option-label">@optionLetter.</span>
+                                                <input type="text" name="questions[@questionIndex].Options[@j]" class="form-control" 
+                                                       value="@options[j]" required>
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="removeOption(this)" @isDisabled>
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <button type="button" class="btn btn-sm btn-secondary" onclick="addOption(this)">
+                                    <i class="fas fa-plus"></i>
+                                    Tambah Opsi
+                                </button>
+                            </div>
+                        </div>
+                        
+                        questionIndex++;
+                    }
+                }
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Hidden script to set correct values -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set correct selected values for dropdowns
+        @foreach (var question in Model.Questions)
+        {
+            var questionIndex = Model.Questions.ToList().IndexOf(question);
+            var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson) ?? new List<string>();
+            
+            <text>
+            var select@(questionIndex) = document.querySelector('select[name="questions[@questionIndex].CorrectOptionIndex"]');
+            if (select@(questionIndex)) {
+                select@(questionIndex).value = '@question.CorrectOptionIndex';
+            }
+            </text>
+        }
+    });
+</script>
+
+<link rel="stylesheet" href="~/css/quiz-form.css" />
+<link rel="stylesheet" href="~/css/quiz-form.css?v=@DateTime.Now.Ticks" />
+<script src="~/js/quiz-form.js"></script>
