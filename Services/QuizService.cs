@@ -65,7 +65,7 @@ namespace QuizApp.Services
             existing.Description = quiz.Description;
             existing.DurationMinutes = quiz.DurationMinutes;
             existing.IsActive = quiz.IsActive;
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = DateTime.Now; // ✅ FIX: DateTime.Now instead of UtcNow
 
             await _context.SaveChangesAsync();
             return existing;
@@ -106,7 +106,7 @@ namespace QuizApp.Services
             existing.OptionsJson = question.OptionsJson;
             existing.CorrectOptionIndex = question.CorrectOptionIndex;
             existing.Points = question.Points;
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = DateTime.Now; // ✅ FIX: DateTime.Now instead of UtcNow
 
             await _context.SaveChangesAsync();
             return existing;
@@ -138,7 +138,7 @@ namespace QuizApp.Services
             {
                 UserId = userId,
                 QuizId = quizId,
-                StartedAt = DateTime.UtcNow,
+                StartedAt = DateTime.Now, // ✅ FIX: Use DateTime.Now for local time consistency
                 MaxScore = quiz.Questions.Sum(q => q.Points)
             };
 
@@ -215,7 +215,7 @@ namespace QuizApp.Services
             }
 
             attempt.Score = score;
-            attempt.CompletedAt = DateTime.UtcNow;
+            attempt.CompletedAt = DateTime.Now; // ✅ FIX: Use DateTime.Now for consistency
             await _context.SaveChangesAsync();
 
             return attempt;
@@ -241,7 +241,7 @@ namespace QuizApp.Services
             {
                 QuizAttemptId = attemptId,
                 Type = type,
-                DetectedAt = DateTime.UtcNow,
+                DetectedAt = DateTime.Now, // ✅ FIX: Use DateTime.Now for consistency
                 MetadataJson = metadata
             };
 

@@ -136,45 +136,48 @@
 <link rel="stylesheet" href="~/css/quiz-take.css" />
 
 @section Scripts {
-    <!-- face-api.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     
     <script>
-        const attemptId = @attemptId;
+        const attemptId = parseInt('@ViewData["AttemptId"]');
         const durationMinutes = @Model.DurationMinutes;
-        const startedAt = new Date('@((DateTime)startedAt!).ToString("o")');
         const totalQuestions = @Model.Questions.Count;
         let currentQuestion = 0;
         let answers = {};
         let violationStats = { left: 0, right: 0, noface: 0, multi: 0 };
         
-        // Anti-forgery token
         const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-        // Timer
-    function updateTimer() {
-    const startTime = (startedAt instanceof Date && !isNaN(startedAt)) ? startedAt : new Date();
-    
-    const now = new Date();
-    const elapsed = Math.floor((now - startTime) / 1000);
-    const remaining = (durationMinutes * 60) - elapsed;
-    
-    if (remaining <= 0 || isNaN(remaining)) {
-        submitQuiz();
-        return;
-    }
-    
-    const mins = Math.floor(remaining / 60);
-    const secs = remaining % 60;
-    document.getElementById('timer').textContent = 
-        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    
-    // Ubah warna jika sisa 1 menit
-    if (remaining <= 60) {
-        document.getElementById('timer').classList.add('bg-red-100', 'text-red-800');
-        document.getElementById('timer').classList.remove('bg-indigo-100', 'text-indigo-800');
-    }
-}
+        // ===== SIMPLE TIMER - IGNORE SERVER TIME =====
+        let timeRemaining = durationMinutes * 60; // Mulai dari durasi penuh
+        let timerInterval = null;
+        
+        function updateTimer() {
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer').textContent = '00:00';
+                alert('Waktu habis! Quiz akan di-submit otomatis.');
+                submitQuiz();
+                return;
+            }
+            
+            timeRemaining--;
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 300) {
+                document.getElementById('timer').classList.add('bg-red-100', 'text-red-800');
+                document.getElementById('timer').classList.remove('bg-indigo-100', 'text-indigo-800');
+            }
+        }
+
+        function submitQuiz() {
+            saveCurrentAnswer();
+            document.getElementById('complete-form').submit();
+        }
+
         // Question Navigation
         function showQuestion(index) {
             document.querySelectorAll('.question-card').forEach((card, i) => {
@@ -221,10 +224,8 @@
                 const selectedOption = parseInt(selected.value);
                 answers[questionId] = selectedOption;
                 
-                // Mark as answered
                 document.querySelector(`.question-nav[data-index="${currentQuestion}"]`).classList.add('bg-green-100', 'border-green-500');
                 
-                // Submit to server
                 fetch('/Quiz/SubmitAnswer', {
                     method: 'POST',
                     headers: {
@@ -232,75 +233,120 @@
                         'RequestVerificationToken': antiForgeryToken
                     },
                     body: `attemptId=${attemptId}&questionId=${questionId}&selectedOption=${selectedOption}`
-                });
+                }).catch(err => console.error('Submit error:', err));
             }
         }
 
-        // Face Detection
+        // ===== FACE DETECTION =====
+        let modelsLoaded = false;
+        
         async function initFaceDetection() {
             const video = document.getElementById('webcam');
             const status = document.getElementById('webcam-status');
             
             try {
-                // Load models from CDN
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@@vladmandic/face-api@1.7.12/model/';
-                await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-                await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
+                status.textContent = 'Loading models...';
                 
+                const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+                
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL)
+                ]);
+                
+                modelsLoaded = true;
                 status.textContent = 'Requesting camera...';
                 
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 320, height: 240, facingMode: 'user' } 
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                    audio: false
                 });
+                
                 video.srcObject = stream;
                 
-                video.onloadedmetadata = () => {
-                    status.textContent = 'Detecting...';
-                    detectFace();
-                };
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                
+                status.textContent = 'Detecting...';
+                setTimeout(detectFace, 1000);
+                
             } catch (err) {
-                console.error('Face detection error:', err);
-                status.textContent = 'Camera error!';
-                status.classList.add('bg-red-500');
+                console.error('Camera error:', err);
+                status.textContent = `Error: ${err.message}`;
+                status.className = 'absolute bottom-2 left-2 text-xs text-white bg-red-500 px-2 py-1 rounded';
             }
         }
 
+        let detectionRunning = false;
+        
         async function detectFace() {
+            if (detectionRunning) return;
+            detectionRunning = true;
+            
             const video = document.getElementById('webcam');
             const status = document.getElementById('webcam-status');
             
-            const detections = await faceapi.detectAllFaces(
-                video, 
-                new faceapi.TinyFaceDetectorOptions()
-            ).withFaceLandmarks(true);
-            
-            // Check violations
-            if (detections.length === 0) {
-                logViolation(2, 'NoFace'); // ViolationType.NoFace = 2
-            } else if (detections.length > 1) {
-                logViolation(3, 'MultipleFaces'); // ViolationType.MultipleFaces = 3
-            } else {
-                // Check head direction using landmarks
-                const landmarks = detections[0].landmarks;
-                const nose = landmarks.getNose()[3];
-                const leftEye = landmarks.getLeftEye()[0];
-                const rightEye = landmarks.getRightEye()[3];
-                
-                const eyeCenter = (leftEye.x + rightEye.x) / 2;
-                const deviation = nose.x - eyeCenter;
-                
-                if (deviation < -15) {
-                    logViolation(0, 'LookLeft'); // ViolationType.LookLeft = 0
-                } else if (deviation > 15) {
-                    logViolation(1, 'LookRight'); // ViolationType.LookRight = 1
+            try {
+                if (!modelsLoaded || video.readyState !== 4) {
+                    detectionRunning = false;
+                    setTimeout(detectFace, 500);
+                    return;
                 }
                 
-                status.textContent = 'Face OK';
-                status.className = 'absolute bottom-2 left-2 text-xs text-white bg-green-500/80 px-2 py-1 rounded';
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+                    .withFaceLandmarks(true);
+                
+                if (detections.length === 0) {
+                    logViolation(2, 'NoFace');
+                    status.textContent = 'Wajah tidak terdeteksi';
+                    status.className = 'absolute bottom-2 left-2 text-xs text-white bg-red-500/80 px-2 py-1 rounded';
+                } 
+                else if (detections.length > 1) {
+                    logViolation(3, 'MultipleFaces');
+                    status.textContent = `${detections.length} wajah`;
+                    status.className = 'absolute bottom-2 left-2 text-xs text-white bg-red-500/80 px-2 py-1 rounded';
+                } 
+                else {
+                    const landmarks = detections[0].landmarks.positions;
+                    const nose = landmarks[30];
+                    const leftEye = landmarks[36];
+                    const rightEye = landmarks[45];
+                    
+                    const faceWidth = Math.abs(rightEye.x - leftEye.x);
+                    const faceCenterX = (leftEye.x + rightEye.x) / 2;
+                    const noseDeviation = nose.x - faceCenterX;
+                    const deviationRatio = noseDeviation / faceWidth;
+                    
+                    const THRESHOLD = 0.15;
+                    
+                    if (deviationRatio < -THRESHOLD) {
+                        logViolation(0, 'LookLeft');
+                        status.textContent = 'Melihat kiri';
+                        status.className = 'absolute bottom-2 left-2 text-xs text-white bg-yellow-500/80 px-2 py-1 rounded';
+                    } 
+                    else if (deviationRatio > THRESHOLD) {
+                        logViolation(1, 'LookRight');
+                        status.textContent = 'Melihat kanan';
+                        status.className = 'absolute bottom-2 left-2 text-xs text-white bg-yellow-500/80 px-2 py-1 rounded';
+                    } 
+                    else {
+                        lastViolationType = null;
+                        status.textContent = 'OK ✓';
+                        status.className = 'absolute bottom-2 left-2 text-xs text-white bg-green-500/80 px-2 py-1 rounded';
+                    }
+                }
+                
+            } catch (err) {
+                console.error('Detection error:', err);
             }
             
-            // Continue detection
-            setTimeout(detectFace, 500);
+            detectionRunning = false;
+            setTimeout(detectFace, 300);
         }
 
         let lastViolationType = null;
@@ -308,16 +354,11 @@
 
         function logViolation(type, typeName) {
             const now = Date.now();
-            
-            // Debounce same violation type (min 2 seconds apart)
-            if (lastViolationType === type && now - lastViolationTime < 2000) {
-                return;
-            }
+            if (lastViolationType === type && now - lastViolationTime < 2000) return;
             
             lastViolationType = type;
             lastViolationTime = now;
             
-            // Update stats
             if (type === 0) violationStats.left++;
             else if (type === 1) violationStats.right++;
             else if (type === 2) violationStats.noface++;
@@ -328,27 +369,19 @@
             document.getElementById('stat-noface').textContent = violationStats.noface;
             document.getElementById('stat-multi').textContent = violationStats.multi;
             
-            // Show warning
             const banner = document.getElementById('warning-banner');
             const message = document.getElementById('warning-message');
-            
             const messages = {
-                0: 'Anda terdeteksi melihat ke kiri!',
-                1: 'Anda terdeteksi melihat ke kanan!',
-                2: 'Wajah tidak terdeteksi!',
-                3: 'Terdeteksi lebih dari satu wajah!'
+                0: '⚠️ Melihat ke kiri!',
+                1: '⚠️ Melihat ke kanan!',
+                2: '⚠️ Wajah tidak terdeteksi!',
+                3: '⚠️ Lebih dari satu wajah!'
             };
             
             message.textContent = messages[type];
             banner.classList.remove('hidden');
             setTimeout(() => banner.classList.add('hidden'), 3000);
             
-            // Update webcam status
-            const status = document.getElementById('webcam-status');
-            status.textContent = typeName;
-            status.className = 'absolute bottom-2 left-2 text-xs text-white bg-red-500/80 px-2 py-1 rounded';
-            
-            // Send to server
             fetch('/Violation/Log', {
                 method: 'POST',
                 headers: {
@@ -356,12 +389,24 @@
                     'RequestVerificationToken': antiForgeryToken
                 },
                 body: `attemptId=${attemptId}&violationType=${type}`
-            });
+            }).catch(err => console.error('Log error:', err));
         }
 
-        // Initialize
+        // ===== INIT =====
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('Quiz started - Duration:', durationMinutes, 'minutes');
+            
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+            
             initFaceDetection();
+            
+            window.addEventListener('beforeunload', (e) => {
+                if (currentQuestion < totalQuestions - 1) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
         });
     </script>
 }
