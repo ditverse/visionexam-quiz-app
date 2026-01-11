@@ -46,6 +46,7 @@ namespace QuizApp.Controllers
 
             var userId = GetUserId();
             
+            
             // Check for existing active attempt
             var activeAttempt = await _quizService.GetActiveAttemptAsync(userId, id);
             if (activeAttempt == null)
