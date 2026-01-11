@@ -3,6 +3,7 @@
     ViewData["Title"] = $"Quiz: {Model.Title}";
     var attemptId = ViewData["AttemptId"];
     var startedAt = ViewData["StartedAt"];
+    var questionsList = Model.Questions.ToList();
 }
 
 <div class="quiz-take-container">
@@ -11,8 +12,8 @@
         <div class="quiz-info">
             <h1 class="quiz-title">@Model.Title</h1>
             <div class="quiz-meta">
-                <span class="question-counter">Soal <span id="currentQuestion">1</span> dari @Model.Questions.Count</span>
-                <span class="quiz-points">@Model.Questions.Sum(q => q.Points) poin total</span>
+                <span class="question-counter">Soal <span id="currentQuestion">1</span> dari @questionsList.Count</span>
+                <span class="quiz-points">@questionsList.Sum(q => q.Points) poin total</span>
             </div>
         </div>
         <div class="quiz-timer">
@@ -42,7 +43,7 @@
                     </div>
                 </div>
                 <div class="nav-grid">
-                    @for (int i = 0; i < Model.Questions.Count; i++)
+                    @for (int i = 0; i < questionsList.Count; i++)
                     {
                         <button class="nav-btn" data-question="@i" onclick="goToQuestion(@i)">
                             @(i + 1)
@@ -53,9 +54,9 @@
 
             <!-- Question Display -->
             <div class="question-display">
-                @for (int i = 0; i < Model.Questions.Count; i++)
+                @for (int i = 0; i < questionsList.Count; i++)
                 {
-                    var question = Model.Questions[i];
+                    var question = questionsList[i];
                     var options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(question.OptionsJson) ?? new List<string>();
                     
                     <div class="question-panel" id="question-@i" style="display: @(i == 0 ? "block" : "none")">
@@ -74,7 +75,7 @@
                                 <div class="option-item">
                                     <input type="radio" name="question-@i" id="option-@i-@j" value="@j" class="option-radio">
                                     <label for="option-@i-@j" class="option-label">
-                                        <span class="option-letter">@(char)('A' + j)</span>
+                                        <span class="option-letter">@(Convert.ToChar(65 + j))</span>
                                         <span class="option-text">@options[j]</span>
                                     </label>
                                 </div>
@@ -194,14 +195,14 @@
                     <i class="fas fa-question-circle"></i>
                     <div>
                         <div class="info-label">Total Soal</div>
-                        <div class="info-value">@Model.Questions.Count</div>
+                        <div class="info-value">@questionsList.Count</div>
                     </div>
                 </div>
                 <div class="info-item">
                     <i class="fas fa-star"></i>
                     <div>
                         <div class="info-label">Total Poin</div>
-                        <div class="info-value">@Model.Questions.Sum(q => q.Points)</div>
+                        <div class="info-value">@questionsList.Sum(q => q.Points)</div>
                     </div>
                 </div>
             </div>

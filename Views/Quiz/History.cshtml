@@ -62,7 +62,7 @@
                 </div>
                 <div class="stat-content">
                     @{
-                        var avgScore = Model.Where(a => a.IsCompleted && a.MaxScore > 0).DefaultIfEmpty().Average(a => a.MaxScore > 0 ? (double)a.Score / a.MaxScore * 100 : 0);
+                        var avgScore = Model.Where(a => a.IsCompleted && a.MaxScore > 0).DefaultIfEmpty(new QuizApp.Models.QuizAttempt { Score = 0, MaxScore = 1 }).Average(a => a.MaxScore > 0 ? (double)a.Score / a.MaxScore * 100 : 0);
                     }
                     <div class="stat-number">@avgScore.ToString("F0")%</div>
                     <div class="stat-label">Rata-rata Skor</div>
@@ -80,7 +80,7 @@
                 
                 <div class="history-card">
                     <div class="history-header">
-                        <h3 class="quiz-title">@attempt.Quiz?.Title</h3>
+                        <h3 class="quiz-title">@(attempt.Quiz?.Title ?? "Quiz Tidak Diketahui")</h3>
                         <span class="quiz-status @(attempt.IsCompleted ? "status-completed" : "status-incomplete")">
                             @(attempt.IsCompleted ? "Selesai" : "Belum Selesai")
                         </span>

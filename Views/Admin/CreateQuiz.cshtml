@@ -1,54 +1,102 @@
 @{
-    ViewData["Title"] = "Buat Quiz Baru";
+    ViewData["Title"] = "Buat Quiz Baru - VisionExam";
 }
 
-<div class="max-w-2xl mx-auto">
-    <div class="mb-8">
-        <a asp-controller="Admin" asp-action="Dashboard" class="text-indigo-600 hover:text-indigo-800 flex items-center text-sm">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Kembali ke Dashboard
-        </a>
+<div class="quiz-form-container">
+    <!-- Header -->
+    <div class="form-header">
+        <div class="header-breadcrumb">
+            <a href="/Admin/Dashboard" class="breadcrumb-link">
+                <i class="fas fa-arrow-left"></i>
+                Kembali ke Dashboard
+            </a>
+        </div>
+        <h1 class="page-title">Buat Quiz Baru</h1>
+        <p class="page-subtitle">Buat quiz baru dengan soal-soal pilihan ganda</p>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-xl p-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Buat Quiz Baru</h1>
-
+    <!-- Quiz Form -->
+    <form asp-controller="Admin" asp-action="CreateQuiz" method="post" class="quiz-form">
+        @Html.AntiForgeryToken()
+        
         @if (ViewData["Error"] != null)
         {
-            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                @ViewData["Error"]
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@ViewData["Error"]</span>
             </div>
         }
 
-        <form method="post" asp-controller="Admin" asp-action="CreateQuiz">
-            @Html.AntiForgeryToken()
+        <!-- Quiz Information -->
+        <div class="form-section">
+            <h2 class="section-title">Informasi Quiz</h2>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="title" class="form-label">
+                        <i class="fas fa-heading"></i>
+                        Judul Quiz *
+                    </label>
+                    <input type="text" id="title" name="title" class="form-control" 
+                           placeholder="Masukkan judul quiz" required>
+                </div>
 
-            <div class="mb-6">
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Judul Quiz *</label>
-                <input type="text" id="title" name="title" required maxlength="200"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                       placeholder="Contoh: Ujian Tengah Semester PBO">
+                <div class="form-group">
+                    <label for="duration" class="form-label">
+                        <i class="fas fa-clock"></i>
+                        Durasi (menit) *
+                    </label>
+                    <input type="number" id="duration" name="duration" class="form-control" 
+                           placeholder="60" min="1" required>
+                </div>
             </div>
 
-            <div class="mb-6">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                <textarea id="description" name="description" rows="3" maxlength="1000"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                          placeholder="Deskripsi singkat tentang quiz ini..."></textarea>
+            <div class="form-group">
+                <label for="description" class="form-label">
+                    <i class="fas fa-align-left"></i>
+                    Deskripsi
+                </label>
+                <textarea id="description" name="description" class="form-control" rows="3"
+                          placeholder="Deskripsi quiz (opsional)"></textarea>
             </div>
 
-            <div class="mb-6">
-                <label for="durationMinutes" class="block text-sm font-medium text-gray-700 mb-2">Durasi (menit) *</label>
-                <input type="number" id="durationMinutes" name="durationMinutes" required min="1" max="180" value="30"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <div class="form-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="isActive" checked>
+                    <span class="checkmark"></span>
+                    Quiz Aktif
+                </label>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h2 class="section-title">Soal-Soal</h2>
+                <button type="button" class="btn btn-primary" onclick="addQuestion()">
+                    <i class="fas fa-plus"></i>
+                    Tambah Soal
+                </button>
             </div>
 
-            <button type="submit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition">
+            <div id="questionsContainer">
+                <!-- Questions will be added here dynamically -->
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="/Admin/Dashboard" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Batal
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
                 Buat Quiz
             </button>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
+
+<link rel="stylesheet" href="~/css/quiz-form.css" />
+<script src="~/js/quiz-form.js"></script>
