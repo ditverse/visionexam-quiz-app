@@ -7,23 +7,43 @@
 }
 
 <div class="result-container">
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
     <!-- Success Header -->
     <div class="result-header">
         <div class="success-animation">
             <div class="success-circle">
-                <i class="fas fa-check"></i>
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
         </div>
         <h1 class="result-title">Quiz Selesai!</h1>
         <p class="result-subtitle">@Model.Quiz?.Title</p>
     </div>
 
-    <!-- Grade Display -->
+    <!-- Grade Display with Progress Ring -->
     <div class="grade-section">
-        <div class="grade-display grade-@gradeColor">
-            <div class="grade-letter">@grade</div>
-            <div class="grade-score">@Model.Score / @Model.MaxScore</div>
-            <div class="grade-percentage">(@percentage.ToString("F1")%)</div>
+        <div class="grade-display">
+            <div class="grade-progress-ring">
+                <svg width="200" height="200">
+                    <circle class="grade-progress-ring__circle" stroke="#e5e7eb" stroke-width="8" fill="transparent" r="90" cx="100" cy="100"/>
+                    <circle class="grade-progress-ring__circle grade-progress-ring__circle--progress" stroke="url(#gradient)" stroke-width="8" fill="transparent" r="90" cx="100" cy="100"
+                            stroke-dasharray="@percentage * 5.65 565" stroke-dashoffset="0"/>
+                    <defs>
+                        <linearGradient id="gradient">
+                            <stop offset="0%" stop-color="#8b5cf6" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="grade-content">
+                    <div class="grade-letter">@grade</div>
+                    <div class="grade-score">@Model.Score / @Model.MaxScore</div>
+                    <div class="grade-percentage">(@percentage.ToString("F1")%)</div>
+                </div>
+            </div>
         </div>
     </div>
 
